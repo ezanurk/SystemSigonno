@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGONNO - Sistem Informasi RSUD dr. Gondo Suwarno</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="loginScreen">
+        <div class="login-container">
+            <div class="logo">
+                <div class="logo-text">SG</div>
+            </div>
+            <h1 class="system-title">SIGONNO</h1>
+            <div class="marquee-container">
+                <div class="marquee-text">Sistem Informasi RSUD dr. Gondo Suwarno - Melayani dengan Sepenuh Hati</div>
+            </div>
+            <input type="text" id="username" class="form-input" placeholder="Username">
+            <input type="password" id="password" class="form-input" placeholder="Password">
+            <button onclick="login()" class="btn-login">LOGIN</button>
+        </div>
+    </div>
+
+    <div id="mainApp">
+        <div class="header">
+            <div class="header-top">
+                <div class="header-left">
+                    <div class="mini-logo">
+                        <div class="mini-logo-text">SG</div>
+                    </div>
+                    <h1 class="header-title">SIGONNO</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-badge">
+                        <span id="userDisplay"></span>
+                    </div>
+                    <button onclick="logout()" class="btn-logout">Logout</button>
+                </div>
+            </div>
+            <div class="nav-menu" id="navMenu"></div>
+        </div>
+        <div class="content-area" id="contentArea"></div>
+    </div>
+
+    <!-- Modal Pasien -->
+    <div id="patientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="patientModalTitle">Tambah Pasien Baru</h3>
+                <button class="close-modal" onclick="closePatientModal()">×</button>
+            </div>
+            <form id="patientForm" onsubmit="savePatient(event)">
+                <input type="hidden" id="editPatientId">
+                
+                <div class="form-section">
+                    <div class="form-section-title">📋 Data Identitas</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">NIK *</label>
+                            <input type="text" id="nik" class="form-control" required maxlength="16">
+                            <small id="nikError" style="color: red; font-size: 12px;"></small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nama Lengkap *</label>
+                            <input type="text" id="nama" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tanggal Lahir *</label>
+                            <input type="date" id="tanggalLahir" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Jenis Kelamin *</label>
+                            <select id="jenisKelamin" class="form-control" required>
+                                <option value="">Pilih</option>
+                                <option value="Laki-laki">Laki-laki</option>
+                                <option value="Perempuan">Perempuan</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">👤 Data Pribadi</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Status Perkawinan</label>
+                            <select id="statusPerkawinan" class="form-control">
+                                <option value="">Pilih</option>
+                                <option value="Belum Kawin">Belum Kawin</option>
+                                <option value="Kawin">Kawin</option>
+                                <option value="Cerai Hidup">Cerai Hidup</option>
+                                <option value="Cerai Mati">Cerai Mati</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Pendidikan</label>
+                            <select id="pendidikan" class="form-control">
+                                <option value="">Pilih</option>
+                                <option value="Tidak/Belum Sekolah">Tidak/Belum Sekolah</option>
+                                <option value="Belum Tamat SD/Sederajat">Belum Tamat SD/Sederajat</option>
+                                <option value="Tamat SD/Sederajat">Tamat SD/Sederajat</option>
+                                <option value="SLTP/Sederajat">SLTP/Sederajat</option>
+                                <option value="SLTA/Sederajat">SLTA/Sederajat</option>
+                                <option value="Diploma I/II">Diploma I/II</option>
+                                <option value="Akademi/Diploma III/S.Muda">Akademi/Diploma III/S.Muda</option>
+                                <option value="Diploma IV/Strata I">Diploma IV/Strata I</option>
+                                <option value="Strata II">Strata II</option>
+                                <option value="Strata III">Strata III</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Pekerjaan</label>
+                            <select id="pekerjaan" class="form-control">
+                                <option value="">Pilih</option>
+                                <option value="Tidak Bekerja">Tidak Bekerja</option>
+                                <option value="Aparatur Sipil Negara">Aparatur Sipil Negara</option>
+                                <option value="Anggota TNI">Anggota TNI</option>
+                                <option value="Anggota POLRI">Anggota POLRI</option>
+                                <option value="Karyawan Swasta">Karyawan Swasta</option>
+                                <option value="Karyawan BUMN">Karyawan BUMN</option>
+                                <option value="Wiraswasta">Wiraswasta</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Berat Badan (kg)</label>
+                            <input type="number" id="beratBadan" class="form-control" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tinggi Badan (cm)</label>
+                            <input type="number" id="tinggiBadan" class="form-control" step="0.1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">📍 Alamat</div>
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label class="form-label">Alamat Lengkap</label>
+                            <textarea id="alamat" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">RT</label>
+                            <input type="text" id="rt" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">RW</label>
+                            <input type="text" id="rw" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Kelurahan</label>
+                            <input type="text" id="kelurahan" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Kecamatan</label>
+                            <input type="text" id="kecamatan" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Kabupaten/Kota</label>
+                            <input type="text" id="kabupaten" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Provinsi</label>
+                            <input type="text" id="provinsi" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">📞 Kontak</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Nomor Telepon</label>
+                            <input type="tel" id="telepon" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select id="status" class="form-control">
+                                <option value="Aktif">Aktif</option>
+                                <option value="Tidak Aktif">Tidak Aktif</option>
+                            </select>
+                         </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">🏥 Poli Tujuan</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Poli Tujuan *</label>
+                            <select id="poliTujuan" class="form-control" required>
+                                <option value="">Pilih Poli</option>
+                                <option value="Poli Umum">Poli Umum</option>
+                                <option value="Poli Anak">Poli Anak</option>
+                                <option value="Poli Kandungan">Poli Kandungan</option>
+                                <option value="Poli Bedah">Poli Bedah</option>
+                                <option value="Poli Penyakit Dalam">Poli Penyakit Dalam</option>
+                                <option value="Poli Syaraf">Poli Syaraf</option>
+                                <option value="Poli Mata">Poli Mata</option>
+                                <option value="Poli THT">Poli THT</option>
+                                <option value="Poli Kulit & Kelamin">Poli Kulit & Kelamin</option>
+                                <option value="Poli Jiwa">Poli Jiwa</option>
+                                <option value="Poli Gigi & Mulut">Poli Gigi & Mulut</option>
+                                <option value="Poli Jantung">Poli Jantung</option>
+                                <option value="Poli Paru">Poli Paru</option>
+                                <option value="Poli Orthopedi">Poli Orthopedi</option>
+                                <option value="Poli Urologi">Poli Urologi</option>
+                                <option value="Poli Rehab Medik">Poli Rehab Medik</option>
+                                <option value="IGD">IGD (Instalasi Gawat Darurat)</option>
+                                <option value="Rawat Inap">Rawat Inap</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                    <button type="submit" class="btn-primary" style="flex: 1;">Simpan</button>
+                    <button type="button" class="btn-secondary" onclick="closePatientModal()">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Koding -->
+    <div id="codingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Input Koding</h3>
+                <button class="close-modal" onclick="closeCodingModal()">×</button>
+            </div>
+            <form onsubmit="saveCoding(event)">
+                <input type="hidden" id="codingMRId">
+                <input type="hidden" id="editCodingId">
+                
+                <div class="form-group">
+                    <label class="form-label">Kode ICD-10 *</label>
+                    <input type="text" id="icd10" class="form-control" required placeholder="Contoh: A00.0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Diagnosis *</label>
+                    <textarea id="diagnosisText" class="form-control" rows="2" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kode ICD-9 (Opsional)</label>
+                    <input type="text" id="icd9" class="form-control" placeholder="Contoh: 01.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tindakan (Opsional)</label>
+                    <textarea id="tindakanText" class="form-control" rows="2"></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                    <button type="submit" class="btn-primary" style="flex: 1;">Simpan</button>
+                    <button type="button" class="btn-secondary" onclick="closeCodingModal()">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Medical Record Modal -->
+    <div id="medicalRecordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Input Rekam Medis</h3>
+                <button class="close-modal" onclick="closeMedicalRecordModal()">×</button>
+            </div>
+            <form onsubmit="saveMedicalRecord(event)">
+                <input type="hidden" id="mrPatientId">
+                <input type="hidden" id="editMRId">
+                
+                <div class="form-group">
+                    <label class="form-label">Poli</label>
+                    <input type="text" id="mrPoli" class="form-control" placeholder="Contoh: Poli Umum">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tanggal *</label>
+                    <input type="date" id="mrTanggal" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Keluhan *</label>
+                    <textarea id="mrKeluhan" class="form-control" rows="2" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Diagnosis *</label>
+                    <textarea id="mrDiagnosis" class="form-control" rows="2" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tindakan</label>
+                    <textarea id="mrTindakan" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Terapi</label>
+                    <textarea id="mrTerapi" class="form-control" rows="2"></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                    <button type="submit" class="btn-primary" style="flex: 1;">Simpan</button>
+                    <button type="button" class="btn-secondary" onclick="closeMedicalRecordModal()">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="script.js"></script>
+</body>
+</html>
